@@ -12,22 +12,42 @@ jobs:
       matrix:
         python-version: ["3.9", "3.12"]
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out mat-data-handler
+        uses: actions/checkout@v4
+
+      - name: Check out mat-data (test fixture data)
+        uses: actions/checkout@v4
+        with:
+          repository: ICAMS/mat-data
+          # Pin to a released tag for reproducibility once available, e.g. ref: v2026.9.0
+          ref: main
+          path: mat-data-checkout
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install data package
-        run: pip install -e packages/mat-data-handler-data
-      - name: Install core package
-        run: pip install -e "packages/mat-data-handler[test]"
-      - name: Validate bundled material entries
-        run: |
-          mat-build-database --output /tmp/materials.yaml --validate-only
+
+      - name: Install package
+        run: pip install -e ".[test]"
+
+      - name: Validate mat-data entries
+        env:
+          MAT_DATA_LOCAL_PATH: ${{ github.workspace }}/mat-data-checkout
+        run: mat-build-database --output /tmp/materials.yaml --validate-only
+
       - name: Rebuild database and check reproducibility
+        env:
+          MAT_DATA_LOCAL_PATH: ${{ github.workspace }}/mat-data-checkout
         run: |
           mat-build-database --output /tmp/materials.yaml
           mat-build-database --output /tmp/materials.yaml --check
+
       - name: Run tests
-        run: pytest packages/mat-data-handler/tests -v
+        env:
+          MAT_DATA_LOCAL_PATH: ${{ github.workspace }}/mat-data-checkout
+        run: pytest -v
+
       - name: Export a sample material
+        env:
+          MAT_DATA_LOCAL_PATH: ${{ github.workspace }}/mat-data-checkout
         run: mat-extract-params copper --outdir /tmp/includes

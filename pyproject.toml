@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "mat-data-handler"
 version = "0.1.0"
-description = "Validate, combine, and export crystal-plasticity material parameter sets for Abaqus UMATs."
+description = "Validate, combine, and export crystal-plasticity material parameter sets for ICAMS CP-UMAT."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
@@ -14,8 +14,11 @@ dependencies = [
   "PyYAML>=6.0",
   "jsonschema>=4.18",
   "referencing>=0.30",
-  "mat-data-handler-data>=2026.9,<2027",
 ]
+# Note: material data is NOT a pip/conda dependency. It is fetched at runtime
+# from the separate https://github.com/ICAMS/mat-data repository and cached
+# locally; see mat_data_handler.data_source. Requires network access on first
+# use (or MAT_DATA_LOCAL_PATH pointing at a local checkout for offline use).
 classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
@@ -30,8 +33,8 @@ mat-build-database = "mat_data_handler.database:main"
 mat-extract-params = "mat_data_handler.extract:main"
 
 [project.urls]
-Homepage = "https://github.com/<org>/mat-data-handler"
-Repository = "https://github.com/<org>/mat-data-handler"
+Homepage = "https://github.com/ICAMS/mat-data-handler"
+Repository = "https://github.com/ICAMS/mat-data-handler"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mat_data_handler"]

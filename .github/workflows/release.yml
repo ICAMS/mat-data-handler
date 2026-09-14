@@ -1,9 +1,9 @@
-name: Release mat-data-handler
+name: Release
 
 on:
   push:
     tags:
-      - "core-v*"
+      - "v*"
 
 permissions:
   id-token: write  # required for PyPI Trusted Publishing
@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install build
-      - run: python -m build packages/mat-data-handler --outdir dist
+      - run: python -m build --outdir dist
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:

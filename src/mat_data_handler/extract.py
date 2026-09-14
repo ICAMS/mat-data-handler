@@ -241,7 +241,7 @@ def export_material(name: str, entry, mapping, schemas: Path):
 
 
 def _default_data_paths():
-    from mat_data_handler_data import entries_dir, schemas_dir, mapping_path
+    from .data_source import entries_dir, mapping_path, schemas_dir
 
     return entries_dir(), schemas_dir(), mapping_path()
 
@@ -251,64 +251,61 @@ def main(argv=None):
     parser.add_argument("material", help="Material key or 'all'")
     parser.add_argument("--input", "--yaml_file", "--json_file", dest="input", type=Path,
                          help="Entry directory, single entry, or combined YAML/JSON database; "
-                              "defaults to the bundled mat-data-handler-data entries/")
+                              "defaults to the mat-data repo's entries/ (fetched/cached)")
     parser.add_argument("--mapping-file", "--mapping_file", dest="mapping_file", type=Path,
-                         help="Defaults to the bundled mat-data-handler-data mapping.csv")
-    parser.add_argument("--schemas", type=Path, help="Defaults to the bundled mat-data-handler-data schemas/")
+                         help="Defaults to the mat-data repo's mapping.csv (fetched/cached)")
+    parser.add_argument("--schemas", type=Path, help="Defaults to the mat-data repo's schemas/ (fetched/cached)")
     parser.add_argument("--outdir", type=Path, default=Path("."))
     parser.add_argument("--values-per-line", type=int, choices=[8], default=8)
     args = parser.parse_args(argv)
     try:
-        from contextlib import ExitStack
+        if args.input is None or args.mapping_file is None or args.schemas is None:
+            default_entries, default_schemas, default_mapping = _default_data_paths()
+            input_path = args.input or default_entries
+            mapping_file = args.mapping_file or default_mapping
+            schemas = args.schemas or default_schemas
+        else:
+            input_path, mapping_file, schemas = args.input, args.mapping_file, args.schemas
 
-        with ExitStack() as stack:
-            if args.input is None or args.mapping_file is None or args.schemas is None:
-                default_entries_cm, default_schemas_cm, default_mapping_cm = _default_data_paths()
-                input_path = args.input or stack.enter_context(default_entries_cm)
-                mapping_file = args.mapping_file or stack.enter_context(default_mapping_cm)
-                schemas = args.schemas or stack.enter_context(default_schemas_cm)
-            else:
-                input_path, mapping_file, schemas = args.input, args.mapping_file, args.schemas
+        mapping = parse_mapping(mapping_file)
+        input_path = Path(input_path)
+        if input_path.is_dir():
+            files = sorted(p for p in input_path.iterdir() if p.suffix in (".yaml", ".yml") and p.is_file())
+            selected = files if args.material == "all" else [p for p in files if p.stem == args.material]
+            entries = {}
+            for path in selected:
+                if path.stem in entries:
+                    raise ValueError(f"duplicate material key: {path.stem}")
+                entries[path.stem] = load_document(path)
+        else:
+            data = load_document(input_path)
+            if not isinstance(data, dict):
+                raise ValueError("input must be a material object or keyed database")
+            entries = {input_path.stem: data} if "constitutive_model" in data else data
+            if args.material != "all":
+                entries = {k: v for k, v in entries.items() if k == args.material}
+        if not entries:
+            raise ValueError(f"no matching materials: {args.material}")
 
-            mapping = parse_mapping(mapping_file)
-            input_path = Path(input_path)
-            if input_path.is_dir():
-                files = sorted(p for p in input_path.iterdir() if p.suffix in (".yaml", ".yml") and p.is_file())
-                selected = files if args.material == "all" else [p for p in files if p.stem == args.material]
-                entries = {}
-                for path in selected:
-                    if path.stem in entries:
-                        raise ValueError(f"duplicate material key: {path.stem}")
-                    entries[path.stem] = load_document(path)
-            else:
-                data = load_document(input_path)
-                if not isinstance(data, dict):
-                    raise ValueError("input must be a material object or keyed database")
-                entries = {input_path.stem: data} if "constitutive_model" in data else data
-                if args.material != "all":
-                    entries = {k: v for k, v in entries.items() if k == args.material}
-            if not entries:
-                raise ValueError(f"no matching materials: {args.material}")
+        outputs, errors = {}, []
+        for name, entry in sorted(entries.items()):
+            try:
+                if not isinstance(name, str) or not re.fullmatch("[a-z0-9_]+", name):
+                    raise ValueError("invalid material key")
+                records, notes = export_entry(entry, mapping, schemas)
+                outputs.update(render_outputs(name, entry, records, notes, input_path))
+            except (ValueError, KeyError) as error:
+                errors.append(f"{name}: {error}")
+        if errors:
+            raise ValueError("\n".join(errors))
 
-            outputs, errors = {}, []
-            for name, entry in sorted(entries.items()):
-                try:
-                    if not isinstance(name, str) or not re.fullmatch("[a-z0-9_]+", name):
-                        raise ValueError("invalid material key")
-                    records, notes = export_entry(entry, mapping, schemas)
-                    outputs.update(render_outputs(name, entry, records, notes, input_path))
-                except (ValueError, KeyError) as error:
-                    errors.append(f"{name}: {error}")
-            if errors:
-                raise ValueError("\n".join(errors))
-
-            # Validate the whole selection before touching any output files.
-            args.outdir.mkdir(parents=True, exist_ok=True)
-            for name, content in outputs.items():
-                path = args.outdir / name
-                path.write_text(content, encoding="utf-8")
-                print(f"Wrote {path}")
-            return 0
+        # Validate the whole selection before touching any output files.
+        args.outdir.mkdir(parents=True, exist_ok=True)
+        for name, content in outputs.items():
+            path = args.outdir / name
+            path.write_text(content, encoding="utf-8")
+            print(f"Wrote {path}")
+        return 0
     except Exception as error:
         print(f"Export failed: {error}", file=sys.stderr)
         return 1

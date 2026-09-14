@@ -1,6 +1,5 @@
-# Changelog
+## [Unreleased]
 
-This project keeps separate changelogs per distribution:
+## [0.1.0]
 
-- [packages/mat-data-handler/CHANGELOG.md](packages/mat-data-handler/CHANGELOG.md) — code (SemVer)
-- [packages/mat-data-handler-data/CHANGELOG.md](packages/mat-data-handler-data/CHANGELOG.md) — data (CalVer)
+- Initial extraction from `cp-work`: `build_database`, `export_material`/`export_entry`, CLI entry points.

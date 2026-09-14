@@ -153,16 +153,13 @@ def build_database(entries: Path, schemas: Path, output_format: str = "yaml") ->
     return yaml.safe_dump(database, sort_keys=True, allow_unicode=True)
 
 
-def _default_data_paths():
-    from mat_data_handler_data import entries_dir, schemas_dir
-
-    return entries_dir(), schemas_dir()
-
-
 def main(argv=None):
+    from .data_source import entries_dir as default_entries_dir
+    from .data_source import schemas_dir as default_schemas_dir
+
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--entries", type=Path, help="Defaults to the bundled mat-data-handler-data entries/")
-    parser.add_argument("--schemas", type=Path, help="Defaults to the bundled mat-data-handler-data schemas/")
+    parser.add_argument("--entries", type=Path, help="Defaults to the mat-data repo's entries/ (fetched/cached)")
+    parser.add_argument("--schemas", type=Path, help="Defaults to the mat-data repo's schemas/ (fetched/cached)")
     parser.add_argument("--output", "-o", type=Path, required=True, help="Destination (.yaml/.yml or .json)")
     parser.add_argument("--format", choices=("yaml", "json"), help="Defaults to output extension, or YAML")
     mode = parser.add_mutually_exclusive_group()
@@ -170,48 +167,41 @@ def main(argv=None):
     mode.add_argument("--validate-only", action="store_true", help="Validate entries without building")
     args = parser.parse_args(argv)
     try:
-        from contextlib import ExitStack
+        entries = args.entries or default_entries_dir()
+        schemas = args.schemas or default_schemas_dir()
 
-        with ExitStack() as stack:
-            if args.entries is None or args.schemas is None:
-                default_entries_cm, default_schemas_cm = _default_data_paths()
-                entries = args.entries or stack.enter_context(default_entries_cm)
-                schemas = args.schemas or stack.enter_context(default_schemas_cm)
-            else:
-                entries, schemas = args.entries, args.schemas
+        output = args.output
+        output_format = args.format or ("json" if output.suffix == ".json" else "yaml")
+        if output.resolve().parent in (Path(entries).resolve(), Path(schemas).resolve()):
+            raise ValueError("Output must be outside the entries and schemas directories")
 
-            output = args.output
-            output_format = args.format or ("json" if output.suffix == ".json" else "yaml")
-            if output.resolve().parent in (Path(entries).resolve(), Path(schemas).resolve()):
-                raise ValueError("Output must be outside the entries and schemas directories")
-
-            if args.validate_only:
-                count = validate_only(entries, schemas)
-                print(f"Validated {count} materials")
-                return 0
-
-            content = build_database(entries, schemas, output_format)
-            data = content.encode("utf-8")
-            if args.check:
-                if not output.is_file() or output.read_bytes() != data:
-                    print(f"{output}: missing or stale; rebuild without --check", file=sys.stderr)
-                    return 1
-                print(f"{output}: up to date")
-                return 0
-            output.parent.mkdir(parents=True, exist_ok=True)
-            temporary = None
-            try:
-                with tempfile.NamedTemporaryFile(dir=output.parent, delete=False) as stream:
-                    temporary = Path(stream.name)
-                    stream.write(data)
-                    stream.flush()
-                    os.fsync(stream.fileno())
-                temporary.replace(output)
-            finally:
-                if temporary is not None:
-                    temporary.unlink(missing_ok=True)
-            print(f"Wrote database to {output}")
+        if args.validate_only:
+            count = validate_only(entries, schemas)
+            print(f"Validated {count} materials")
             return 0
+
+        content = build_database(entries, schemas, output_format)
+        data = content.encode("utf-8")
+        if args.check:
+            if not output.is_file() or output.read_bytes() != data:
+                print(f"{output}: missing or stale; rebuild without --check", file=sys.stderr)
+                return 1
+            print(f"{output}: up to date")
+            return 0
+        output.parent.mkdir(parents=True, exist_ok=True)
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(dir=output.parent, delete=False) as stream:
+                temporary = Path(stream.name)
+                stream.write(data)
+                stream.flush()
+                os.fsync(stream.fileno())
+            temporary.replace(output)
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
+        print(f"Wrote database to {output}")
+        return 0
     except Exception as error:
         print(f"Build failed: {error}", file=sys.stderr)
         return 1
