@@ -1,0 +1,40 @@
+# Draft authoring template; illustrative values, not a calibrated material.
+# Copy to entries/<stable-material-key>.yaml and replace values and provenance.
+# The filename stem becomes the combined database key; no outer key is needed.
+phase_identifier: "Example FCC material"
+material_id: 1  # Replace with the intended legacy material selector.
+bravais_lattice: "fcc"
+space_group: "Fm-3m"
+space_group_number: 225
+reference: "REPLACE: publication, DOI, or calibration report"
+constitutive_model:
+  elastic_model_name: "Anisotropic Elasticity"
+  elastic_parameters:
+    C11: 250000.0  # MPa
+    C12: 150000.0  # MPa
+    C44: 120000.0 # MPa
+  plastic_model_name: "ICAMS CP-UMAT"
+  plastic_parameters:
+    number_slip_families: 1
+    number_slip_systems: 12
+    reference_shear_rate: 0.001  # 1/s
+    stress_exponent: 20.0  # n, inverse of strain-rate sensitivity
+    initial_critical_resolved_shear_stress: 20.0  # MPa
+    saturated_slip_resistance: 100.0             # MPa
+    reference_hardening_rate: 60.0              # MPa
+    hardening_exponent: 1.0
+    self_hardening: 1.0
+    cross_hardening: 1.4
+    flag_isotropic_hardening: 1
+    flag_back_stress: 0  # 0: none; 1: FA; 2: Chaboche; 3: Ohno-Wang
+    flag_gradient_plasticity: 0
+    flag_int: 0
+    flag_super_alloy: 0
+    flag_trip: 0
+    flag_thermal: 0
+  units:
+    Stress: "MPa"
+    Stiffness: "MPa"
+    Time: "s"
+# Add parameters for additional active blocks only after consulting mapping.csv
+# and the current Fortran reader. Grain Euler angles do not belong here.

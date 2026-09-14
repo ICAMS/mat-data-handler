@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install data package
+        run: pip install -e packages/mat-data-handler-data
+      - name: Install core package
+        run: pip install -e "packages/mat-data-handler[test]"
+      - name: Validate bundled material entries
+        run: |
+          mat-build-database --output /tmp/materials.yaml --validate-only
+      - name: Rebuild database and check reproducibility
+        run: |
+          mat-build-database --output /tmp/materials.yaml
+          mat-build-database --output /tmp/materials.yaml --check
+      - name: Run tests
+        run: pytest packages/mat-data-handler/tests -v
+      - name: Export a sample material
+        run: mat-extract-params copper --outdir /tmp/includes

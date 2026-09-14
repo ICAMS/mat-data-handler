@@ -1,0 +1,5 @@
+# Route data PRs to whoever reviews material parameter values;
+# route code PRs to whoever maintains the validation/export API.
+# Replace placeholders with actual GitHub usernames/teams before use.
+/packages/mat-data-handler-data/ @<materials-reviewer>
+/packages/mat-data-handler/      @<core-maintainer>

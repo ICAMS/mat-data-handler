@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "CP material database entry (draft)",
+  "type": "object",
+  "required": [
+    "phase_identifier",
+    "constitutive_model"
+  ],
+  "properties": {
+    "phase_identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "material_id": {
+      "type": "integer"
+    },
+    "bravais_lattice": {
+      "type": "string"
+    },
+    "space_group": {
+      "type": "string"
+    },
+    "space_group_number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 230
+    },
+    "reference": {
+      "type": "string"
+    },
+    "constitutive_model": {
+      "$ref": "crystal_plasticity_constitutive_model_metadata_schema.json"
+    },
+    "lattice": {
+      "enum": [
+        "cF",
+        "cI",
+        "hP",
+        "tI"
+      ]
+    },
+    "c/a": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "constitutive_model": {
+            "properties": {
+              "plastic_model_name": {
+                "const": "ICAMS CP-UMAT"
+              }
+            },
+            "required": [
+              "plastic_model_name"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "material_id",
+          "space_group_number"
+        ]
+      },
+      "else": {
+        "required": [
+          "lattice"
+        ]
+      }
+    }
+  ]
+}

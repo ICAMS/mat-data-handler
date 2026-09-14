@@ -1,0 +1,47 @@
+{% set name = "mat-data-handler" %}
+{% set version = "0.1.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  # sha256: <fill in after the first PyPI release>
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  entry_points:
+    - mat-build-database = mat_data_handler.database:main
+    - mat-extract-params = mat_data_handler.extract:main
+
+requirements:
+  host:
+    - python >=3.9
+    - pip
+    - hatchling
+  run:
+    - python >=3.9
+    - pyyaml >=6.0
+    - jsonschema >=4.18
+    - referencing >=0.30
+    - mat-data-handler-data >=2026.9,<2027
+
+test:
+  imports:
+    - mat_data_handler
+  commands:
+    - mat-build-database --help
+    - mat-extract-params --help
+
+about:
+  home: https://github.com/<org>/mat-data-handler
+  license: MIT
+  license_file: LICENSE
+  summary: Validate, combine, and export crystal-plasticity material parameter sets for Abaqus UMATs.
+
+extra:
+  recipe-maintainers:
+    - <github-username>

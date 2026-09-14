@@ -1,0 +1,36 @@
+phase_identifier: "Gold (Au)"
+material_id: 0  
+bravais_lattice: "fcc"
+space_group: "Fm-3m"
+space_group_number: 225
+reference: "CP parameters: https://doi.org/10.1016/j.actamat.2025.121798, Elastic parameters: https://doi.org/10.1063/1.2124667,
+ Dataset: Shoghi, R. (2026), Micromechanical Simulation Dataset of Single-Crystal Gold under Multiaxial Loading Using Crystal Plasticity FEM, Zenodo, DOI: 10.5281/zenodo.21981226"
+constitutive_model:
+  elastic_model_name: "Anisotropic Elasticity"
+  elastic_parameters:
+    C11: 186000.0  
+    C12: 157000.0  
+    C44: 42000.0 
+  plastic_model_name: "ICAMS CP-UMAT"
+  plastic_parameters:
+    number_slip_families: 1
+    number_slip_systems: 12
+    reference_shear_rate: 0.001  
+    stress_exponent: 50.0  
+    initial_critical_resolved_shear_stress: 134.2  
+    saturated_slip_resistance: 189.0            
+    reference_hardening_rate: 2000.0              
+    hardening_exponent: 1.0
+    self_hardening: 1.0
+    cross_hardening: 1.4
+    flag_isotropic_hardening: 1
+    flag_back_stress: 0  
+    flag_gradient_plasticity: 0
+    flag_int: 0
+    flag_super_alloy: 0
+    flag_trip: 0
+    flag_thermal: 0
+  units:
+    Stress: "MPa"
+    Stiffness: "MPa"
+    Time: "s"

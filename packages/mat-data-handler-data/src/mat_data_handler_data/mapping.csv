@@ -1,0 +1,55 @@
+﻿Order;json_key (MiMeDat);fortran_type;fortran_variable (ICAMS CP-UMAT);default_value;block;access_mode;required_if;active_if;unit;since_version;comment
+1;flag_isotropic_hardening;integer;Ihard_iso;1;flags;metadata;always;always;-;0.1.0;flag for isotropic hardening
+2;flag_back_stress;integer;Iwkcoup_bk;0;flags;metadata;always;always;-;0.1.0;flag for back stress / kinematic hardening (0: None, 1: Frederick-Armstrong, 2: Chaboche, 3: Ohno-Wang
+3;flag_gradient_plasticity;integer;Iwkcoup_grad;0;flags;metadata;always;always;-;0.1.0;flag for strain gradient plasticity (0: off, 1: active)
+4;flag_int;integer;Iwkcoup_int;0;flags;metadata;always;always;-;0.1.0;flag for internal stress (superalloys) (0: off, 1: active)
+5;flag_super_alloy;integer;Iwkcoup_sup;0;flags;metadata;always;always;-;0.1.0;flag for superalloy(0: off, 1: active)
+6;flag_trip;integer;Iwkcoup_trip;0;flags;metadata;always;always;-;0.1.0;flag for TRIP effect (0: off, 1: active)
+7;flag_thermal;integer;Iwkcoup_temp;0;flags;metadata;always;always;-;0.1.0;flag to activate temperature dependent parameters
+8;C11;real;c11;250000;elastic;always;always;always;MPa;0.1.0;anisotropic elastic coefficient
+9;C12;real;c12;150000;elastic;always;always;always;MPa;0.1.0;anisotropic elastic coefficient
+10;C44;real;c44;120000;elastic;always;always;always;MPa;0.1.0;anisotropic elastic coefficient
+11;C33;real;;0;elastic;optional;never;provided;MPa;0.1.0;anisotropic elastic coefficient
+12;C66;real;;0;elastic;optional;never;provided;MPa;0.1.0;anisotropic elastic coefficient
+13;C13;real;;0;elastic;optional;never;provided;MPa;0.1.0;anisotropic elastic coefficient
+14;number_slip_families;integer;N_fam;1;flow_rule;optional;never;always;-;0.1.0;flow_rule: number of slip system families
+15;number_slip_systems;integer(N_fam);N_slip;12;flow_rule;always;always;always;-;0.1.0;flow rule: number of slip systems
+16;space_group_number;integer;spc_grp;0;flow_rule;always;always;always;-;0.1.0;space group number for generic material models (legacy: material_id for specific pre-defined materials)
+17;reference_shear_rate;real(N_fam);shrt0;0,001;flow_rule;always;always;always;1/s;0.1.0;flow rule:reference shear rate
+18;stress_exponent;real(N_fam);pwfl;20;flow_rule;always;always;always;-;0.1.0;flow rule: inverse of strain rate sensitivity
+19;initial_critical_resolved_shear_stress;real(N_fam);crss0;20;flow_rule;always;always;always;MPa;0.1.0;flow rule: initial critical resolved shear stress
+20;saturated_slip_resistance;real(N_fam);crsss;100;iso_hardening;conditional;iso_mode > 0;iso_mode > 0;MPa;0.1.0;isotropic hardening: saturated slip resistance
+21;reference_hardening_rate;real(N_fam);hdrt0;0;iso_hardening;conditional;iso_mode > 0;iso_mode > 0;MPa;0.1.0;isotropic hardening: reference strain hardening rate
+22;self_hardening;real(N_fam);c_cpl;1;iso_hardening;conditional;iso_mode > 0;iso_mode > 0;-;0.1.0;isotropic hardening: self-hardening coefficient
+23;cross_hardening;real(N_fam);c_oth;1,4;iso_hardening;conditional;iso_mode > 0;iso_mode > 0;-;0.1.0;isotropic hardening: cross-hardening coefficient
+24;hardening_exponent;real(N_fam);pwhd;1;iso_hardening;conditional;iso_mode > 0;iso_mode > 0;-;0.1.0;isotropic hardening: hardening exponent
+25;nslip_kinematic_hardening;integer(N_fam);n_slp;48;kin_hardening;conditional;kin_mode > 0;kin_mode > 0;-;0.1.0;kinematic hardening : number of effective slip systems
+26;kinematic_hardening_a1;real(N_fam);Adir;1;kin_hardening;conditional;kin_mode > 0;kin_mode > 0;MPa;0.1.0;kinematic hardening: parameter A (FA, Cahb and OW model)
+27;kinematic_hardening_b1;real(N_fam);Adyn;1;kin_hardening;conditional;kin_mode > 0;kin_mode > 0;MPa;0.1.0;kinematic hardening: parameter B (FA, Chab and OW model)
+28;ohno_wang_exponent;real(N_fam);M_OW;0;kin_hardening;conditional;kin_mode == 3;kin_mode > 0;-;0.1.0;kinematic hardening: Ohno-Wang hardening exponent
+29;chaboche_parameter_a2;real(N_fam);A2;1;kin_hardening;conditional;kin_mode == 2;kin_mode  > 0;MPa;0.1.0;kinematic hardening: Chaboche parameter A2
+30;chaboche_parameter_b2;real(N_fam);B2;1;kin_hardening;conditional;kin_mode == 2;kin_mode  > 0;-;0.1.0;kinematic hardening: Chaboche parameter B2
+31;chaboche_parameter_a3;real(N_fam);A3;1;kin_hardening;conditional;kin_mode == 2;kin_mode  > 0;MPa;0.1.0;kinematic hardening: Chaboche parameter A3
+32;chaboche_parameter_b3;real(N_fam);B3;1;kin_hardening;conditional;kin_mode == 2;kin_mode  > 0;-;0.1.0;kinematic hardening: Chaboche parameter B3
+33;temperature_polynomial_degree;integer;N_tpoly;1;thermal;optional;never;thermal_mode == 1;-;0.1.0;temperature dependent slip: degree of polynomials describing temperature dependence
+34;activation_energy;real(N_fam, N_tpoly);Qact;0;thermal;conditional;thermal_mode == 1;thermal_mode == 1;kJ / mol;0.1.0;temperature dependent slip: activation energy for dislocation slip
+35;c11_tcoeff;real(N_fam, N_tpoly);c11_tcoeff;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;temperature dependent slip: coefficients of polynomial for temperature dependence of elastic coefficient
+36;c12_tcoeff;real(N_fam, N_tpoly);c12_tcoeff;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;temperature dependent slip: coefficients of polynomial for temperature dependence of elastic coefficient
+37;c44_tcoeff;real(N_fam, N_tpoly);c44_tcoeff;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;temperature dependent slip: coefficients of polynomial for temperature dependence of elastic coefficient
+38;stress_exponent_tcoeff;real(N_fam, N_tpoly);;0;thermal;optional;never;thermal_mode == 1;;0.1.0;temperature dependent slip: coefficients of polynomial for temperature dependence of stress exponent
+39;crss0_coef_tcoeff;real(N_fam, N_tpoly);crss0_tcoeff;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;temperature dependent slip: slope of kinematic hardening parameter w.r.t. temperature
+40;crss_sat_tcoeff;real(N_fam, N_tpoly);;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;temperature dependent slip: slope of critical resolved shear stress w.r.t. temperature
+41;hardening_rate_tcoeff;real(N_fam, N_tpoly);;0;thermal;optional;never;thermal_mode == 1;1 / K;0.1.0;
+42;hardening_exponent_tcoeff;real(N_fam, N_tpoly);;0;thermal;optional;never;thermal_mode == 1;1 / K;0.1.0;
+43;kinematic_hardening_a1_tcoeff;real(N_fam, N_tpoly);Adir_tcoeff;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;
+44;kinematic_hardening_b1_tcoeff;real(N_fam, N_tpoly);;0;thermal;optional;never;thermal_mode == 1;MPa / K;0.1.0;
+45;orowan_stress;real;crss_oro;0;superalloy;conditional;super_mode == 1;super_mode == 1;MPa;0.1.0;superalloy: Orowan stress contribution to channel glide
+46;self_hardening_climb;real;c_cplc;0;superalloy;conditional;super_mode == 1;super_mode == 1;-;0.1.0;superalloy: self hardening coefficient for climb mechanism
+47;cross_hardening_climb;real;c_othc;0;superalloy;conditional;super_mode == 1;super_mode == 1;-;0.1.0;superalloy: latent hardening coefficient for climb mechanism
+48;flag_octree;integer;Ioct_search;1;gradient;optional;never;grad_mode == 1;-;0.1.0;gradient plasticity: flag for octree search for mapping of fem mesh to fft grid
+49;C_taui;real;C_taui;0,01;gradient;conditional;grad_mode == 1;grad_mode == 1;;0.1.0;gradient plasticity: Taylor hardening parameter
+50;L_size;real;L_size;1,00E-09;gradient;conditional;grad_mode == 1;grad_mode == 1;m;0.1.0;gradient plasticity: intrinsic length scale
+51;I_gnd_iso;integer;I_gnd_iso;1;gradient;optional;never;grad_mode == 1;-;0.1.0;"gradient plasticity; 1: consider isotropic GND hardening; 0: not considered"
+52; I_gnd_kin;integer; I_gnd_kin;1;gradient;optional;never;grad_mode == 1;.;0.1.0;"gradient plasticity; 1: consider kinematic GND hardening; 0: not considered"
+53;C_unit;real;C_unit;1,00E-06;gradient;optional;never;grad_mode == 1;m;0.1.0;gradient plasticity: parameter
+54;B_lattice;real;B_lattice;2,50E-10;gradient;optional;never;grad_mode == 1;m;0.1.0;gradient plasticity: Burgers vector norm
