@@ -50,4 +50,4 @@ jobs:
       - name: Export a sample material
         env:
           MAT_DATA_LOCAL_PATH: ${{ github.workspace }}/mat-data-checkout
-        run: mat-extract-params copper --outdir /tmp/includes
+        run: mat-extract-params copper_generic --outdir /tmp/includes
