@@ -27,13 +27,6 @@ export MAT_DATA_LOCAL_PATH=../mat-data   # point at a sibling mat-data checkout
 pytest
 ```
 
-## Release process
-
-Tag `vX.Y.Z` to trigger `.github/workflows/release.yml`, which builds and
-publishes to PyPI via Trusted Publishing. conda-forge tracks PyPI releases
-once `conda-recipe/meta.yaml` has been accepted into
-`conda-forge/staged-recipes`.
-
 ## Reporting issues
 
 Please include the command run and the full error output. If the issue is

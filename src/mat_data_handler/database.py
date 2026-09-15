@@ -63,7 +63,7 @@ def validator(schema_dir: Path) -> Draft201909Validator:
         resources.append((path.resolve().as_uri(), Resource.from_contents(schema)))
     # Registry has no retrieval callback: unresolved references cannot use the network.
     registry = Registry().with_resources(resources)
-    uri = (Path(schema_dir) / "material.schema.json").resolve().as_uri()
+    uri = (Path(schema_dir) / "material_schema.json").resolve().as_uri()
     return Draft201909Validator({"$ref": uri}, registry=registry)
 
 

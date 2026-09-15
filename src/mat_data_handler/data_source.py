@@ -61,7 +61,7 @@ def _fetch_git(repo: str, ref: str, dest: Path) -> None:
 
 
 def data_root(repo: str = None, ref: str = None) -> Path:
-    """Return a local directory containing entries/, schemas/, mapping.csv."""
+    """Return a local directory containing entries/, schemas/, mapping_icams_cp.csv."""
     local = os.environ.get("MAT_DATA_LOCAL_PATH")
     if local:
         return Path(local)
@@ -86,4 +86,4 @@ def schemas_dir(repo: str = None, ref: str = None) -> Path:
 
 
 def mapping_path(repo: str = None, ref: str = None) -> Path:
-    return data_root(repo, ref) / "mapping.csv"
+    return data_root(repo, ref) / "mapping_icams_cp.csv"

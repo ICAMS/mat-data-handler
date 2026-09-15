@@ -1,28 +1,11 @@
-# mat-data-handler
+# mat-data-handler – Organizing Material Data for Crystal Plasticity
 
-Validate, combine, and export crystal-plasticity material parameter sets used
-by Abaqus UMATs (originally developed for the ICAMS CP-UMAT). Extracted from
-[cp-work](https://github.com/ICAMS/cp-work) so it can be reused standalone,
-e.g. as a dependency of [Kanapy](https://github.com/ICAMS/Kanapy).
+Plain Python package to validate, combine, and export crystal-plasticity material parameter sets. The material data itself (YAML
+entries, JSON schemas, PROPS mapping table) is retrieved from the
+[mat-data](https://github.com/ICAMS/mat-data) repository and fetched over
+the network (and cached locally) at runtime.  
+Currently only support for the crystal plasticity model [ICAMS CP-UMAT](https://github.com/ICAMS/Crystal_Plasticity_UMAT.git) is provided. Use the `mat_extract_params` command to extract the require .inc files that contains the values for PROPS[9:] read by the ICAMS CP-UMAT.
 
-This is a plain, single Python package. The material data itself (YAML
-entries, JSON schemas, PROPS mapping table) is **not** bundled or pip/conda
-installed — it lives in the separate, code-free
-[mat-data](https://github.com/ICAMS/mat-data) repository and is fetched over
-the network (and cached locally) at runtime. See
-[`src/mat_data_handler/data_source.py`](src/mat_data_handler/data_source.py).
-
-## Why fetch data over the network instead of packaging it?
-
-- **Different change cadence.** Material parameters are added/corrected often;
-  the validation/export API is meant to stay stable. Decoupling them means new
-  entries don't require a new `mat-data-handler` release, and vice versa.
-- **No packaging overhead for pure data.** `mat-data` doesn't need a
-  `pyproject.toml`, a Python package layout, or a PyPI/conda-forge release
-  process at all — it's just YAML/JSON/CSV files and documentation, versioned
-  with plain git tags.
-- **Simple contribution model.** Anyone can propose a new material via a pull
-  request to `mat-data` alone; no code repo involvement needed.
 
 ## Installation
 
@@ -59,8 +42,8 @@ Other environment variables: `MAT_DATA_REPO` (default `ICAMS/mat-data`),
 ## CLI
 
 ```bash
-mat-build-database --output build/materials.yaml --check
-mat-extract-params copper --outdir build/includes
+mat-build-database --output build/materials.yaml  # generate combined database
+mat-extract-params copper_generic --outdir build/includes
 mat-extract-params all --outdir build/includes
 ```
 
